@@ -1,4 +1,4 @@
-class GazeCorrection:
+class GazeCorrector:
     
     def process(self, frame):
         
