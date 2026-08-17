@@ -3,9 +3,23 @@ import numpy as np
 import cv2
 import time
 
-# Indices(positions) of specific landmarks that MediaPipe returns
+# Indices(positions) of the iris landmarks
 LEFT_IRIS_INDICES = [468, 469, 470, 471, 472]
 RIGHT_IRIS_INDICES = [473, 474, 475, 476, 477]
+
+# Left eye
+LEFT_OUTER_CORNER = 33
+LEFT_INNER_CORNER = 133
+LEFT_UPPER_EYELID = 159
+LEFT_LOWER_EYELID = 145
+
+# Right eye
+RIGHT_OUTER_CORNER = 263
+RIGHT_INNER_CORNER = 362
+RIGHT_UPPER_EYELID = 386
+RIGHT_LOWER_EYELID = 374
+
+
 
 class GazeCorrector:
     
@@ -147,6 +161,31 @@ class GazeCorrector:
         return yaw, pitch, roll
     
     
+    
+    def get_iris_ratio(self, frame, face_landmarks, iris_center,
+                       outer_corner_index, inner_corner_index, 
+                       upper_eyelid_index, lower_eyelid_index):
+        
+        height, width = frame.shape[:2]
+        
+        outer_x = face_landmarks[outer_corner_index].x * width
+        inner_x = face_landmarks[inner_corner_index].x * width
+        
+        upper_y = face_landmarks[upper_eyelid_index].y * height
+        lower_y = face_landmarks[lower_eyelid_index].y * height
+        
+        iris_x, iris_y = iris_center
+        
+        # Horizontal iris position
+        x_ratio = ((iris_x - outer_x) / (inner_x - outer_x))
+        
+        # Vertical iris position
+        y_ratio = ((iris_y - upper_y) / (lower_y - upper_y))
+        
+        return x_ratio, y_ratio
+        
+    
+    
     # Main Process
     def process(self, frame):
         
@@ -161,6 +200,17 @@ class GazeCorrector:
         # Iris Position
         left_iris_center = self.get_iris_center(plain_frame, face_landmarks, LEFT_IRIS_INDICES)
         right_iris_center = self.get_iris_center(plain_frame, face_landmarks, RIGHT_IRIS_INDICES)
+        
+        # Left iris ratios
+        left_x_ratio, left_y_ratio = self.get_iris_ratio(plain_frame, face_landmarks, left_iris_center, 
+                                                         LEFT_OUTER_CORNER, LEFT_INNER_CORNER, LEFT_UPPER_EYELID, LEFT_LOWER_EYELID)
+
+        # Right iris ratios
+        right_x_ratio, right_y_ratio = self.get_iris_ratio(plain_frame, face_landmarks, right_iris_center, 
+                                                           RIGHT_OUTER_CORNER, RIGHT_INNER_CORNER, RIGHT_UPPER_EYELID, RIGHT_LOWER_EYELID)
+        
+        print(f"Left iris: x={left_x_ratio:.2f}, y={left_y_ratio:.2f}," 
+              f"Right iris: x={right_x_ratio:.2f}, y={right_y_ratio:.2f}")
         
         # Head Position
         head_pos = self.get_head_pos(plain_frame, face_landmarks)
