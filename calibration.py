@@ -1,26 +1,10 @@
-import cv2
-
-key = cv2.waitKey(1) & 0xFF
-calibration_mode = False
-gaze_correction_mode = False
-
-if key == ord("c"):
-    calibration_mode = True
-    print("Calibration started")
+class Calibration:
     
-elif key == ord("s"):
-    calibration_mode = False
-    # Train the model
-    print("Model trained")
+    def __init__(self):
+        self.data = []
+        
+    def add_sample(self, sample):
+        self.data.append(sample)
     
-elif key == ord("g"):
-    gaze_correction_mode = True
-    print("Gaze correction turned on")
-
-elif key == ord("t"):
-    gaze_correction_mode = False
-    print("Gaze correction turned off")
-    
-elif key == 27:
-    # Escape from the system
-    pass
+    def clear(self):
+        self.data.clear()

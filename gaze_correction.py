@@ -154,13 +154,13 @@ class GazeCorrector:
             rotation_matrix
         )
         
-        rx = angles[0][0]
-        ry = angles[1][0]
-        rz = angles[2][0]
+        rx = angles[0]
+        ry = angles[1]
+        rz = angles[2]
         
-        tx = translation_vector[0][0]
-        ty = translation_vector[1][0]
-        tz = translation_vector[2][0]
+        tx = translation_vector[0]
+        ty = translation_vector[1]
+        tz = translation_vector[2]
 
         return rx, ry, rz, tx, ty, tz
     
@@ -213,20 +213,29 @@ class GazeCorrector:
         right_x_ratio, right_y_ratio = self.get_iris_ratio(plain_frame, face_landmarks, right_iris_center, 
                                                            RIGHT_OUTER_CORNER, RIGHT_INNER_CORNER, RIGHT_UPPER_EYELID, RIGHT_LOWER_EYELID)
         
-        print(f"Left iris: x={left_x_ratio:.2f}, y={left_y_ratio:.2f}," 
-              f"Right iris: x={right_x_ratio:.2f}, y={right_y_ratio:.2f}")
+        #print(f"Left iris: x={left_x_ratio:.2f}, y={left_y_ratio:.2f}," 
+        #      f"Right iris: x={right_x_ratio:.2f}, y={right_y_ratio:.2f}")
         
         # Head Position
         head_pos = self.get_head_pos(plain_frame, face_landmarks)
-        if head_pos:
-            yaw, pitch, roll = head_pos
-            print(
-                f"Yaw: {yaw:.1f}, "
-                f"Pitch: {pitch:.1f}, "
-                f"Roll: {roll:.1f}"
-            )
+        if head_pos is None:
+            return plain_frame, None
         
-        # Future processes
+        rx, ry, rz, tx, ty, tz = head_pos
+        
+        tracked_data = {
+            "rx": rx,
+            "ry": ry,
+            "rz": rz,
+            "tx": tx,
+            "ty": ty,
+            "tz": tz,
+            "left_x_ratio": left_x_ratio,
+            "left_y_ratio": left_y_ratio,
+            "right_x_ratio": right_x_ratio,
+            "right_y_ratio": right_y_ratio
+        }
+        
         corrected_frame = plain_frame
         
-        return corrected_frame
+        return corrected_frame, tracked_data
