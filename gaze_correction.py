@@ -154,11 +154,15 @@ class GazeCorrector:
             rotation_matrix
         )
         
-        pitch = angles[0]
-        yaw = angles[1]
-        roll = angles[2]
+        rx = angles[0][0]
+        ry = angles[1][0]
+        rz = angles[2][0]
+        
+        tx = translation_vector[0][0]
+        ty = translation_vector[1][0]
+        tz = translation_vector[2][0]
 
-        return yaw, pitch, roll
+        return rx, ry, rz, tx, ty, tz
     
     
     
