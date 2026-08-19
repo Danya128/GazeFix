@@ -150,17 +150,13 @@ class GazeCorrector:
         
         rotation_matrix, _ = cv2.Rodrigues(rotation_vector)
         
-        angles, _, _, _, _, _ = cv2.RQDecomp3x3(
-            rotation_matrix
-        )
+        rx = rotation_vector[0][0]
+        ry = rotation_vector[1][0]
+        rz = rotation_vector[2][0]
         
-        rx = angles[0]
-        ry = angles[1]
-        rz = angles[2]
-        
-        tx = translation_vector[0]
-        ty = translation_vector[1]
-        tz = translation_vector[2]
+        tx = translation_vector[0][0]
+        ty = translation_vector[1][0]
+        tz = translation_vector[2][0]
 
         return rx, ry, rz, tx, ty, tz
     
@@ -197,7 +193,7 @@ class GazeCorrector:
         
         result = self.detect_landmarks(frame)
         if not result.face_landmarks:
-            return plain_frame
+            return plain_frame, None
         
         face_landmarks = result.face_landmarks[0]
         
