@@ -25,6 +25,7 @@ def main():
                 print("Error with reading a webcam")
                 break
             
+            
             original_frame = frame.copy()
             corrected_frame, tracked_data = correction.process(frame)
             
@@ -38,10 +39,12 @@ def main():
             
             key = cv2.waitKey(1) & 0xFF
 
+            # Start calibration
             if key == ord("c"):
                 calibration_mode = True
                 print("Calibration started")
-    
+
+            # Stop calibration and train the model
             elif key == ord("s"):
                 calibration_mode = False
                 calibration.train_model()
