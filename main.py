@@ -44,15 +44,14 @@ def main():
     
             elif key == ord("s"):
                 calibration_mode = False
-                X, y = calibration.prepare_data()
+                calibration.train_model()
+                model_score = calibration.evaluate_model()
                 
-                X = np.array(X, dtype=np.float64)
-                y = np.array(y, dtype=np.float64)
+                if model_score:
+                    print("Model has been trained successfully")
+                else:
+                    print("Calibration needs improvements")
                 
-                print("X: ", X.shape)
-                print("y: ", y.shape)
-                # Train the model
-                print("Model trained")
     
             elif key == ord("g"):
                 gaze_correction_mode = True
