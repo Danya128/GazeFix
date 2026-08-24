@@ -27,10 +27,11 @@ def main():
             
             
             original_frame = frame.copy()
-            corrected_frame, tracked_data = correction.process(frame)
+            corrected_frame, tracked_data = correction.process(frame, calibration, gaze_correction_mode)
             
             frame_counter += 1
 
+            # Add samples for model training
             if calibration_mode and tracked_data:
                 if frame_counter % 5 == 0:
                     calibration.add_sample(tracked_data)
@@ -66,6 +67,9 @@ def main():
     
             elif key == 27:
                 break
+            
+            if gaze_correction_mode == True:
+                pass
                 
 
             

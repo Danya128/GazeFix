@@ -162,6 +162,7 @@ class GazeCorrector:
     
     
     
+    # Iris Ratio
     def get_iris_ratio(self, frame, face_landmarks, iris_center,
                        outer_corner_index, inner_corner_index, 
                        upper_eyelid_index, lower_eyelid_index):
@@ -183,14 +184,34 @@ class GazeCorrector:
         y_ratio = ((iris_y - upper_y) / (lower_y - upper_y))
         
         return x_ratio, y_ratio
-        
     
+    
+    
+    # Target iris position
+    def get_target_point(self, frame, face_landmarks, x_ratio, y_ratio, outer_corner_index,
+                            inner_corner_index, upper_eyelid_index, lower_eyelid_index):
+        
+        height, width = frame.shape[:2]
+        
+        outer_x = face_landmarks[outer_corner_index].x * width
+        inner_x = face_landmarks[inner_corner_index].x * width
+        
+        upper_y = face_landmarks[upper_eyelid_index].y * height
+        lower_y = face_landmarks[lower_eyelid_index].y * height
+        
+        target_x = outer_x + x_ratio * (inner_x - outer_x)
+        target_y = upper_y + y_ratio * (lower_y - upper_y)
+        
+        cv2.circle(frame, (int(target_x), int(target_y)), 4, (0, 0, 255), -1)
+        
+        return int(target_x), int(target_y)
     
     # Main Process
-    def process(self, frame):
+    def process(self, frame, calibration, gaze_correction_mode):
         
         plain_frame = frame.copy()
         
+        # Detect face landmarks
         result = self.detect_landmarks(frame)
         if not result.face_landmarks:
             return plain_frame, None
@@ -232,6 +253,27 @@ class GazeCorrector:
             "right_y_ratio": right_y_ratio
         }
         
+        # Run ML prediction only when gaze correction is enabled
+        if gaze_correction_mode and calibration is not None:
+            
+            predicted_ratios = calibration.predict(tracked_data)
+            
+            if predicted_ratios is not None:
+                
+                (target_left_x_ratio,
+                target_left_y_ratio,
+                target_right_x_ratio,
+                target_right_y_ratio) = predicted_ratios
+                
+            left_target = self.get_target_point(plain_frame, face_landmarks, target_left_x_ratio,
+            target_left_y_ratio, LEFT_OUTER_CORNER, LEFT_INNER_CORNER, LEFT_UPPER_EYELID, LEFT_LOWER_EYELID)
+            
+            right_target = self.get_target_point(plain_frame, face_landmarks, target_right_x_ratio,
+            target_right_y_ratio, RIGHT_OUTER_CORNER, RIGHT_INNER_CORNER, RIGHT_UPPER_EYELID, RIGHT_LOWER_EYELID)
+        
+            cv2.circle(plain_frame, left_target, 4, (0, 0, 255), -1)
+            cv2.circle(plain_frame, right_target, 4, (0, 0, 255), -1)
+
         corrected_frame = plain_frame
         
         return corrected_frame, tracked_data

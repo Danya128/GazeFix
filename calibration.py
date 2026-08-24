@@ -63,6 +63,18 @@ class Calibration:
             print("Model performance is unacceptable")
             return False
         
+    
+    def predict(self, tracked_data):
+        predictions = self.model.predict([
+            [tracked_data["rx"],
+             tracked_data["ry"],
+             tracked_data["rz"],
+             tracked_data["tx"],
+             tracked_data["ty"],
+             tracked_data["tz"]]])
+
+        return predictions[0]
+        
         
     def clear(self):
         self.data.clear()
