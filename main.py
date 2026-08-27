@@ -36,7 +36,14 @@ def main():
                 if frame_counter % 5 == 0:
                     calibration.add_sample(tracked_data)
             
-            cv2.imshow("Corrected Frame", corrected_frame)
+            display_width = 750
+            display_height = 480
+            
+            original_display = cv2.resize(original_frame, (display_width, display_height))
+            corrected_display = cv2.resize(corrected_frame, (display_width, display_height))
+            combined_frame = cv2.hconcat([original_display,corrected_display])
+            cv2.imshow("GazeFix", combined_frame)
+            
             
             key = cv2.waitKey(1) & 0xFF
 

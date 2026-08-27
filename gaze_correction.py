@@ -77,7 +77,7 @@ class GazeCorrector:
         
         center = (int(center_x), int(center_y))
         
-        cv2.circle(frame, center, 4, (0,255,0), -1)
+        #cv2.circle(frame, center, 4, (0,255,0), -1)
         
         return center
     
@@ -202,14 +202,69 @@ class GazeCorrector:
         target_x = outer_x + x_ratio * (inner_x - outer_x)
         target_y = upper_y + y_ratio * (lower_y - upper_y)
         
-        cv2.circle(frame, (int(target_x), int(target_y)), 4, (0, 0, 255), -1)
+        #cv2.circle(frame, (int(target_x), int(target_y)), 4, (0, 0, 255), -1)
         
         return int(target_x), int(target_y)
+    
+    
+    
+    # Shift the iris image
+    def shift_iris(self, frame, iris_center, target_point, warp_radius):
+        
+        iris_x, iris_y = iris_center
+        target_x, target_y = target_point
+        
+        dx = target_x - iris_x
+        dy = target_y - iris_y
+        
+        padding = (warp_radius + max(abs(dx), abs(dy)) + 1)
+
+        x1 = max(0, iris_x - padding)
+        y1 = max(0, iris_y - padding)
+        
+        x2 = min(frame.shape[1], iris_x + padding)
+        y2 = min(frame.shape[0], iris_y + padding)
+        
+        roi = frame[y1:y2, x1:x2].copy()
+        
+        if roi.size == 0:
+            return frame
+        
+        height, width = roi.shape[:2]
+        
+        map_x, map_y = np.meshgrid(
+            np.arange(width, dtype=np.float32),
+            np.arange(height, dtype=np.float32)
+        )
+        
+        center_x = target_x - x1
+        center_y = target_y - y1
+        
+        # Pythagorean theorem
+        distance = np.sqrt(
+            (map_x - center_x) ** 2 + 
+            (map_y - center_y) ** 2
+        )
+        
+        weight = np.clip(1.0 - distance / warp_radius, 0.0, 1.0)
+        
+        weight = weight * (2.5 - 2 * weight)
+        
+        map_x = map_x - (dx * weight)*1.5
+        map_y = map_y - (dy * weight)*1.5
+        
+        warped_roi = cv2.remap(roi, map_x, map_y, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT_101)
+        frame[y1:y2, x1:x2] = warped_roi
+        
+        return frame
+        
+    
     
     # Main Process
     def process(self, frame, calibration, gaze_correction_mode):
         
         plain_frame = frame.copy()
+        height, width = plain_frame.shape[:2]
         
         # Detect face landmarks
         result = self.detect_landmarks(frame)
@@ -265,15 +320,39 @@ class GazeCorrector:
                 target_right_x_ratio,
                 target_right_y_ratio) = predicted_ratios
                 
-            left_target = self.get_target_point(plain_frame, face_landmarks, target_left_x_ratio,
-            target_left_y_ratio, LEFT_OUTER_CORNER, LEFT_INNER_CORNER, LEFT_UPPER_EYELID, LEFT_LOWER_EYELID)
+                left_target = self.get_target_point(plain_frame, face_landmarks, target_left_x_ratio,
+                target_left_y_ratio, LEFT_OUTER_CORNER, LEFT_INNER_CORNER, LEFT_UPPER_EYELID, LEFT_LOWER_EYELID)
             
-            right_target = self.get_target_point(plain_frame, face_landmarks, target_right_x_ratio,
-            target_right_y_ratio, RIGHT_OUTER_CORNER, RIGHT_INNER_CORNER, RIGHT_UPPER_EYELID, RIGHT_LOWER_EYELID)
+                right_target = self.get_target_point(plain_frame, face_landmarks, target_right_x_ratio,
+                target_right_y_ratio, RIGHT_OUTER_CORNER, RIGHT_INNER_CORNER, RIGHT_UPPER_EYELID, RIGHT_LOWER_EYELID)
         
-            cv2.circle(plain_frame, left_target, 4, (0, 0, 255), -1)
-            cv2.circle(plain_frame, right_target, 4, (0, 0, 255), -1)
+                #cv2.circle(plain_frame, left_target, 4, (0, 0, 255), -1)
+                #cv2.circle(plain_frame, right_target, 4, (0, 0, 255), -1)
+            
+                # Calculate a reasonable warp radius for shift function
+                left_eye_width = int(abs(   
+                    face_landmarks[LEFT_INNER_CORNER].x * width -
+                    face_landmarks[LEFT_OUTER_CORNER].x * width)*0.45)
+
+                right_eye_width = int(abs(
+                    face_landmarks[RIGHT_INNER_CORNER].x * width -
+                    face_landmarks[RIGHT_OUTER_CORNER].x * width)*0.45)
+        
+                plain_frame = self.shift_iris(
+                    plain_frame,
+                    left_iris_center,
+                    left_target,
+                    left_eye_width
+                )
+        
+                plain_frame = self.shift_iris(
+                    plain_frame,
+                    right_iris_center,
+                    right_target,
+                    right_eye_width
+                )
 
         corrected_frame = plain_frame
+        
         
         return corrected_frame, tracked_data
