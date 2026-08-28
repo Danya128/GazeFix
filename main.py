@@ -36,8 +36,8 @@ def main():
                 if frame_counter % 5 == 0:
                     calibration.add_sample(tracked_data)
             
-            display_width = 750
-            display_height = 480
+            display_width = 650
+            display_height = 380
             
             original_display = cv2.resize(original_frame, (display_width, display_height))
             corrected_display = cv2.resize(corrected_frame, (display_width, display_height))
@@ -63,21 +63,19 @@ def main():
                 else:
                     print("Calibration needs improvements")
                 
-    
+            # Enable gaze correction mode
             elif key == ord("g"):
                 gaze_correction_mode = True
                 print("Gaze correction turned on")
 
+            # Disable gaze correction mode
             elif key == ord("t"):
                 gaze_correction_mode = False
                 print("Gaze correction turned off")
-    
+
+            # Exit the program
             elif key == 27:
-                break
-            
-            if gaze_correction_mode == True:
-                pass
-                
+                break              
 
             
     finally:

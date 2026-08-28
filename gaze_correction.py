@@ -116,7 +116,7 @@ class GazeCorrector:
 
         ], dtype=np.float64)
         
-        #Template of 3D face model
+        #Template of the 3D face model
         model_points = np.array([
             (0.0, 0.0, 0.0),# nose
             (0.0, -63.6, -12.5),# chin
@@ -337,22 +337,22 @@ class GazeCorrector:
                 right_eye_width = int(abs(
                     face_landmarks[RIGHT_INNER_CORNER].x * width -
                     face_landmarks[RIGHT_OUTER_CORNER].x * width)*0.45)
-        
+
+                # Shift left iris
                 plain_frame = self.shift_iris(
                     plain_frame,
                     left_iris_center,
                     left_target,
                     left_eye_width
                 )
-        
+
+                # Shift right iris
                 plain_frame = self.shift_iris(
                     plain_frame,
                     right_iris_center,
                     right_target,
                     right_eye_width
                 )
-
-        corrected_frame = plain_frame
         
         
-        return corrected_frame, tracked_data
+        return plain_frame, tracked_data

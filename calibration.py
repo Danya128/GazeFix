@@ -12,11 +12,13 @@ class Calibration:
         self.X_test = None
         self.y_text = None
         
-        
+    
+    # The data stored for ML model training
     def add_sample(self, sample):
         self.data.append(sample)
         
-        
+    
+    # Clearing the data
     def prepare_data(self):
         X = []
         y = []
@@ -34,6 +36,7 @@ class Calibration:
         return X, y
     
     
+    # Train ML model
     def train_model(self):
         X, y = self.prepare_data()
         
@@ -46,6 +49,7 @@ class Calibration:
         self.model.fit(X_train, y_train)
     
     
+    # Evaluate ML model
     def evaluate_model(self):
         if self.model is None:
             print("The model has not been trained yet")
@@ -64,6 +68,7 @@ class Calibration:
             return False
         
     
+    # Call the ML model
     def predict(self, tracked_data):
         predictions = self.model.predict([
             [tracked_data["rx"],
@@ -75,7 +80,8 @@ class Calibration:
 
         return predictions[0]
         
-        
+    
+    # Clear the training data
     def clear(self):
         self.data.clear()
         
