@@ -77,7 +77,7 @@ class GazeCorrector:
         
         center = (int(center_x), int(center_y))
         
-        #cv2.circle(frame, center, 4, (0,255,0), -1)
+        cv2.circle(frame, center, 4, (0,255,0), -1)
         
         return center
     
@@ -202,7 +202,7 @@ class GazeCorrector:
         target_x = outer_x + x_ratio * (inner_x - outer_x)
         target_y = upper_y + y_ratio * (lower_y - upper_y)
         
-        #cv2.circle(frame, (int(target_x), int(target_y)), 4, (0, 0, 255), -1)
+        cv2.circle(frame, (int(target_x), int(target_y)), 7, (0, 0, 255), -1)
         
         return int(target_x), int(target_y)
     
@@ -326,8 +326,8 @@ class GazeCorrector:
                 right_target = self.get_target_point(plain_frame, face_landmarks, target_right_x_ratio,
                 target_right_y_ratio, RIGHT_OUTER_CORNER, RIGHT_INNER_CORNER, RIGHT_UPPER_EYELID, RIGHT_LOWER_EYELID)
         
-                #cv2.circle(plain_frame, left_target, 4, (0, 0, 255), -1)
-                #cv2.circle(plain_frame, right_target, 4, (0, 0, 255), -1)
+                cv2.circle(plain_frame, left_target, 4, (0, 0, 255), -1)
+                cv2.circle(plain_frame, right_target, 4, (0, 0, 255), -1)
             
                 # Calculate a reasonable warp radius for shift function
                 left_eye_width = int(abs(   
@@ -339,20 +339,20 @@ class GazeCorrector:
                     face_landmarks[RIGHT_OUTER_CORNER].x * width)*0.45)
 
                 # Shift left iris
-                plain_frame = self.shift_iris(
-                    plain_frame,
-                    left_iris_center,
-                    left_target,
-                    left_eye_width
-                )
+                #plain_frame = self.shift_iris(
+                #    plain_frame,
+                #    left_iris_center,
+                #    left_target,
+                #    left_eye_width
+                #)
 
                 # Shift right iris
-                plain_frame = self.shift_iris(
-                    plain_frame,
-                    right_iris_center,
-                    right_target,
-                    right_eye_width
-                )
+                #plain_frame = self.shift_iris(
+                #    plain_frame,
+                #    right_iris_center,
+                #    right_target,
+                #    right_eye_width
+                #)
         
         
         return plain_frame, tracked_data
