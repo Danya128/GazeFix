@@ -35,12 +35,36 @@ GazeFix can be useful in:
 - **Red point** - predicted iris position when looking toward the webcam
 The distance between these two points is used to calculate the correction vector that determines how far and in which direction the iris region should be shifted.
 
-Wirhout correction                              With correction
-![GazeFix iris position demo](images/IMG_6483.jpg)
 
-## The image below shows GazeFix during normal use with gaze correction enabled.
-The **original frame** shows the user's natural gaze, while the **corrected frame** shows the result after the predicted iris movement and local eye-region warping are applied.
-This demonstrates the final output of the current GazeFix pipeline without any debug markers.
+<table>
+  <tr>
+    <th width="50%">Original Frame</th>
+    <th width="50%">Gaze-Corrected Frame</th>
+  </tr>
+  <tr>
+    <td colspan="2">
+      <img src="images/IMG_6483.jpg" alt="GazeFix iris-position demonstration">
+    </td>
+  </tr>
+</table>
 
-Wirhout correction                              With correction
-![GazeFix real-time correction demo](images/IMG_6478.jpg)
+### Gaze correction during normal use
+
+The **original frame** shows the user's natural gaze, while the
+**gaze-corrected frame** shows the result after the predicted iris movement
+and local eye-region warping are applied.
+
+This demonstrates the final output of the current GazeFix pipeline without
+debug markers.
+
+<table>
+  <tr>
+    <th width="50%">Original Frame</th>
+    <th width="50%">Gaze-Corrected Frame</th>
+  </tr>
+  <tr>
+    <td colspan="2">
+      <img src="images/IMG_6478.jpg" alt="GazeFix real-time correction demonstration">
+    </td>
+  </tr>
+</table>
